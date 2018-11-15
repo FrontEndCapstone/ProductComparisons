@@ -1,6 +1,5 @@
 const { Pool, Client } = require('pg');
 const dotenv = require('dotenv');
-
 dotenv.config();
 
 const pool = new Pool({
@@ -15,12 +14,12 @@ const createTables = () => {
   const queryText =
     `CREATE TABLE IF NOT EXISTS
     tents(
-      _id bigserial PRIMARY KEY NOT NULL,
+      _id bigserial PRIMARY KEY,
       imageURL varchar(140),
       title varchar(60),
-      ranking bigint,
+      ranking real,
       reviews smallint,
-      price integer,
+      price smallint,
       sleepingCapacity varchar(20),
       packagedWeight varchar(10),
       numberOfDoors smallint,
@@ -30,17 +29,14 @@ const createTables = () => {
 
     CREATE TABLE IF NOT EXISTS
     shirts(
-      _id bigserial PRIMARY KEY NOT NULL,
+      _id bigserial PRIMARY KEY,
       imageURL varchar(140),
       title varchar(60),
-      ranking bigint,
+      ranking real,
       reviews smallint,
-      price integer,
+      price smallint,
       productType varchar(10)
-    );
-
-    CREATE INDEX tents_type_index ON tents (productType);
-    CREATE INDEX shirt_type_index ON shirts (productType);`;
+    )`;
 
   pool.query(queryText)
     .then((res) => {
@@ -53,7 +49,28 @@ const createTables = () => {
     });
 }
 
+const dropTables = () => {
+  const queryText = `DROP TABLE IF EXISTS tents;
+                     DROP TABLE IF EXISTS shirts`;
+  pool.query(queryText)
+    .then((res) => {
+      console.log(res);
+      pool.end();
+    })
+    .catch((err) => {
+      console.log(err);
+      pool.end();
+    });
+}
+
+pool.on('remove', () => {
+  console.log('client removed');
+  process.exit(0);
+});
+
 module.exports = {
-  createTables
+  createTables,
+  dropTables
 };
+
 require('make-runnable');
